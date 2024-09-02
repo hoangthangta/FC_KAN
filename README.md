@@ -30,7 +30,7 @@ In this repository, we apply multiple function combinations in low-dimensional d
 * *combined_type*: the type of data combination used in the output (default='quadratic', others are *sum*, *product*, *sum_product*, and *concat*)
 
 ## Commands
-See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BASH) for details. For example, to train FC-KAn models on MNIST with different output combinations
+See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BASH) for details. For example, to train FC-KAN models on MNIST with different output combinations.  We trained the models **on GeForce RTX 3060 Ti** (with other default parameters).
 
 ```python run.py --mode "train" --model_name "fc_kan" --epochs 25 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --note "full_0" --n_part 0 --func_list "dog,bs" --combined_type "sum"```
 
