@@ -42,6 +42,15 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 
 ```python run.py --mode "train" --model_name "fc_kan" --epochs 25 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --note "full_0" --n_part 0 --func_list "dog,bs" --combined_type "concat"```
 
+# References
+* https://github.com/hoangthangta/BSRBF_KAN
+* https://github.com/Blealtan/efficient-kan
+* https://github.com/AthanasiosDelis/faster-kan
+* https://github.com/ZiyaoLi/fast-kan/
+* https://github.com/zavareh1/Wav-KAN
+* https://github.com/seydi1370/Basis_Functions
+* https://github.com/KindXiaoming/pykan (the original KAN)
+
 # Paper
 Updating...
 
