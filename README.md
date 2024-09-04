@@ -52,7 +52,7 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 * https://github.com/KindXiaoming/pykan (the original KAN)
 
 # Paper
-Updating...
+* ResearchGate: https://www.researchgate.net/publication/383659216_FC-KAN_Function_Combinations_in_Kolmogorov-Arnold_Networks
 
 # Contact
 If you have any questions, please contact: tahoangthang@gmail.com. If you want to know more about me, please visit website: https://tahoangthang.com.
