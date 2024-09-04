@@ -1,5 +1,8 @@
+
 # FC_KAN
 In this repository, we apply multiple function combinations in low-dimensional data to design Kolmogorov-Arnold Networks, referred to as **FC-KAN** (**F**unction **C**ombinations in **K**olmogorov-**A**rnold **N**etworks). The experiments demonstrate that these combinations improve the model performance.
+
+Our paper "FC-KAN: Function Combinations in Kolmogorov-Arnold Networks": https://arxiv.org/abs/2409.01763
 
 # Requirements 
 * numpy==1.26.4
@@ -52,7 +55,16 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 * https://github.com/KindXiaoming/pykan (the original KAN)
 
 # Paper
-* ResearchGate: https://www.researchgate.net/publication/383659216_FC-KAN_Function_Combinations_in_Kolmogorov-Arnold_Networks
+```
+@misc{ta2024fckan,
+    title={FC-KAN: Function Combinations in Kolmogorov-Arnold Networks},
+    author={Hoang-Thang Ta and Duy-Quy Thai and Abu Bakar Siddiqur Rahman and Grigori Sidorov and Alexander Gelbukh},
+    year={2024},
+    eprint={2409.01763},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
+}
+```
 
 # Contact
 If you have any questions, please contact: tahoangthang@gmail.com. If you want to know more about me, please visit website: https://tahoangthang.com.
