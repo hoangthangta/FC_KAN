@@ -66,6 +66,9 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 }
 ```
 
+# Acknowledgement 
+Give me a star if you like this repo. Thanks!
+
 # Contact
 If you have any questions, please contact: tahoangthang@gmail.com. If you want to know more about me, please visit website: https://tahoangthang.com.
   
