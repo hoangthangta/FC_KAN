@@ -258,6 +258,14 @@ class FC_KAN(torch.nn.Module):
             X_permuted = X.permute(1, 0, 2)
             X = X_permuted.reshape(X_permuted.shape[0], -1)
             return X
+        elif (self.combined_type == 'max'):
+            X, _ = torch.max(X, dim=0)
+            return X
+        elif (self.combined_type == 'min'):
+            X, _ = torch.min(X, dim=0)
+            return X
+        elif (self.combined_type == 'mean'):
+            return torch.mean(X, dim=0)
         else:
             raise Exception('The combined type "' + self.combined_type + '" does not support!')
             # more combinations
