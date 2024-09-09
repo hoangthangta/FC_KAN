@@ -34,7 +34,7 @@ Fashion-MNIST. A quadratic function is used to combine B-Splines and DoG at the 
 * *note*: A note that is saved in the model name file
 * *n_part*: the part of data used to train data (default: 0, mean use all training data, 0.1 means 10%)
 * *func_list*: the name of functions used in FC-KAN (default='dog,rbf'). Other functions are *bs* and *base*.
-* *combined_type*: the type of data combination used in the output (default='quadratic', others are *sum*, *product*, *sum_product*, *concat*, *max*, *min*, *mean*).
+* *combined_type*: the type of data combination used in the output (default='quadratic', others are *sum*, *product*, *sum_product*, *concat*, *max*, *min*, *mean*). **We are developing other combinations.**
   
 ## Commands
 See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BASH) for details.  We trained the models **on GeForce RTX 3060 Ti** (with other default parameters). For example, FC-KAN models (Difference of Gaussians + B-splines) can be trained on MNIST with different output combinations.
