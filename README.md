@@ -18,7 +18,7 @@ Fashion-MNIST. A quadratic function is used to combine B-Splines and DoG at the 
 # Training
 
 ## Parameters
-* *mode*: working mode ("train" or "test").
+* *mode*: working mode ("train" or "test"). Note that we did not write the test() function. =))
 * *ds_name*: dataset name ("mnist" or "fashion_mnist").
 * *model_name*: type of model (bsrbf_kan, efficient_kan, fast_kan, faster_kan).
 * *epochs*: the number of epochs.
