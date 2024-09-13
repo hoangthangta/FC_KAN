@@ -232,43 +232,57 @@ class FC_KAN(torch.nn.Module):
     
     def forward(self, x: torch.Tensor):
         #x = self.drop(x)
+        device = x.device
         
         if (len(self.func_list) == 1):
             raise Exception('The number of functions (func_list) must be larger than 1.')
         
-        X = torch.stack([x] * len(self.func_list)) # size (n, batch_size, input_dim)
- 
+        X = torch.stack([x] * len(self.func_list)) # size (number of functions, batch_size, input_dim)
         for layer in self.layers: 
             X = layer(X)
         
-        if (self.combined_type == 'sum'): return torch.sum(X, dim=0)
-        elif (self.combined_type == 'product'):  return torch.prod(X, dim=0)
-        elif (self.combined_type == 'sum_product'): return  torch.sum(X, dim=0) +  torch.prod(X, dim=0)
+        output = X.detach().clone()
+        if (self.combined_type == 'sum'): output = torch.sum(X, dim=0)
+        elif (self.combined_type == 'product'):  output = torch.prod(X, dim=0)
+        elif (self.combined_type == 'sum_product'): output = torch.sum(X, dim=0) +  torch.prod(X, dim=0)
         elif (self.combined_type == 'quadratic'): 
             output = torch.sum(X, dim=0) +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
             return output
-        elif (self.combined_type == 'quadratic2'): # not better than quadratic?
-            output = torch.prod(X, dim=0)
+        elif (self.combined_type == 'quadratic2'): # not better than "quadratic"
+            output = torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
             return output
+        elif (self.combined_type == 'cubic'): # not good
+            outsum = torch.sum(X, dim=0)
+            output = outsum +  torch.prod(X, dim=0) 
+            for i in range(X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            output = output*outsum
+            return output
         elif (self.combined_type == 'concat'):
             X_permuted = X.permute(1, 0, 2)
-            X = X_permuted.reshape(X_permuted.shape[0], -1)
-            return X
+            output = X_permuted.reshape(X_permuted.shape[0], -1)
+        elif (self.combined_type == 'concat_linear'):
+            X_permuted = X.permute(1, 0, 2)
+            output = X_permuted.reshape(X_permuted.shape[0], -1)
+            output = F.linear(output, self.concat_weight)
         elif (self.combined_type == 'max'):
-            X, _ = torch.max(X, dim=0)
-            return X
+            output, _ = torch.max(X, dim=0)
         elif (self.combined_type == 'min'):
-            X, _ = torch.min(X, dim=0)
-            return X
+            output, _ = torch.min(X, dim=0)
         elif (self.combined_type == 'mean'):
-            return torch.mean(X, dim=0)
+            output = torch.mean(X, dim=0)
         else:
             raise Exception('The combined type "' + self.combined_type + '" does not support!')
-            # more combinations
+            # Write more combinations here...
+
+        #output = self.base_activation(output) # SiLU
+        #output = output + F.normalize(output, p=2, dim=1)
+
+        return output
         
             
         
