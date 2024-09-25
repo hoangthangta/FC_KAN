@@ -1,7 +1,7 @@
 import csv
+import json
 import sys
 import time as custom_time
-import json
 from numpyencoder import NumpyEncoder
 
 maxInt = sys.maxsize
@@ -13,7 +13,7 @@ while True: # decrease the maxInt value by factor 10 as long as the OverflowErro
         maxInt = int(maxInt/10)
 
 
-def write_data_to_csv_file(file_name, header_list, data_dict):
+def write_to_csv(file_name, header_list, data_dict):
 
     try:
         file = open(file_name, 'a', newline = '', encoding = 'utf-8')
@@ -26,7 +26,7 @@ def write_data_to_csv_file(file_name, header_list, data_dict):
         pass
 
         
-def write_to_text_file(file_name, data, file_access = 'w'):
+def write_to_text(file_name, data, file_access = 'w'):
     """
         write a text in a new line to file
             file_name: string - file name
@@ -35,30 +35,16 @@ def write_to_text_file(file_name, data, file_access = 'w'):
 
     try:
         with open(file_name, file_access, encoding='utf-8') as f:
-            f.write(data + '\n')
-        f.close()
-    except Exception as e:
-        print('Error -- write_to_text_file: ', e)
-    
-	
-def write_to_new_text_file(file_name, data):
-    """
-        write text into a new file
-            file_name: string - file name
-            data: string
-    """
-    try:
-        with open(file_name, 'w', encoding='utf-8') as f:
             if (data == ''):
                 f.write(data)
             else:
                 f.write(data + '\n')
         f.close()
     except Exception as e:
-        print('Error -- write_to_new_text_file: ', e)
+        print('Error -- write_to_text_file: ', e)
+    
 
-
-def write_list_to_json_file(file_name, data_list, file_access = 'a'):
+def write_list_to_json(file_name, data_list, file_access = 'a'):
     """
         write to json file, append new list
             data_list: list - list of data
@@ -71,7 +57,7 @@ def write_list_to_json_file(file_name, data_list, file_access = 'a'):
     except Exception as e:
         print('Error -- write_list_to_json_file: ', e)
 
-def write_list_to_jsonl_file(file_name, data_list, file_access = 'a'):
+def write_list_to_jsonl(file_name, data_list, file_access = 'a'):
     """
         write to json file, append new list
             data_list: list - list of data
@@ -87,26 +73,8 @@ def write_list_to_jsonl_file(file_name, data_list, file_access = 'a'):
     except Exception as e:
         print('Error -- write_list_to_jsonl_file: ', e)
 
-def write_list_to_tsv_file(file_name, data_list, delimiter = '\t', file_access = 'a', quoting = csv.QUOTE_NONE):
-    """
-        write to json file, append new list
-            data_list: list - list of data
-    """
 
-    try:
-        with open(file_name, file_access, encoding='utf-8', newline='') as outfile:
-            for item in data_list:
-                data_item = [v for k, v in item.items()] # convert to value list
-                tsv_output = csv.writer(outfile, delimiter=delimiter, lineterminator='\n', quoting=quoting)
-                tsv_output.writerow(data_item)
-        
-        outfile.close()
-
-    except Exception as e:
-        print('Error -- write_list_to_tsv_file: ', e)
-
-
-def write_single_dict_to_jsonl_file(out_file_name, data_dict, try_no = 0, limit = 10, file_access = 'a', format_json = False):
+def write_single_dict_to_jsonl(out_file_name, data_dict, try_no = 0, limit = 10, file_access = 'a', format_json = False):
     """
         write list to *.json file
             out_file_name: string - file name
@@ -133,7 +101,7 @@ def write_single_dict_to_jsonl_file(out_file_name, data_dict, try_no = 0, limit 
 
     return False
     
-def write_single_dict_to_json_file(out_file_name, data_dict, try_no = 0, file_access = 'a', limit = 10, format_json = False):
+def write_single_dict_to_json(out_file_name, data_dict, try_no = 0, file_access = 'a', limit = 10, format_json = False):
     """
         write list to *.json file
             out_file_name: string - file name
@@ -161,7 +129,7 @@ def write_single_dict_to_json_file(out_file_name, data_dict, try_no = 0, file_ac
 
     return False
 
-def read_list_from_json_file(out_file_name, format_json = True, try_no = 0, limit = 10):
+def read_list_from_json(out_file_name, format_json = True, try_no = 0, limit = 10):
     """
         load list from *.json file
             out_file_name: string - file name
@@ -191,7 +159,7 @@ def read_list_from_json_file(out_file_name, format_json = True, try_no = 0, limi
     return result_list
     
 
-def read_list_from_jsonl_file(out_file_name, try_no = 0, limit = 10):
+def read_list_from_jsonl(out_file_name, try_no = 0, limit = 10):
     """
         load list from *.json file
             out_file_name: string - file name
@@ -219,7 +187,7 @@ def read_list_from_jsonl_file(out_file_name, try_no = 0, limit = 10):
     return result_list
 
 
-def write_list_to_text_file(file_name, data_list, file_access = 'a'): 
+def write_list_to_text(file_name, data_list, file_access = 'a'): 
     """
         write a text in a new line to file
             file_name: string - file name
@@ -237,7 +205,7 @@ def write_list_to_text_file(file_name, data_list, file_access = 'a'):
         print('Error -- write_list_from_text_file: ', e)
 
 
-def read_list_from_text_file(file_name):
+def read_list_from_text(file_name):
     """
         read from text file
             file_name: string - file name
@@ -261,7 +229,7 @@ def read_list_from_text_file(file_name):
     return page_list
 
 
-def read_from_text_file(file_name):
+def read_from_text(file_name):
     """
         write a text in a new line to file
             file_name: string - file name
@@ -278,7 +246,44 @@ def read_from_text_file(file_name):
 
     return data
 
-def read_list_from_csv_file(file_name, delimiter = ',', encoding = 'utf-8'):
+def write_list_to_tsv(file_name, data_list, delimiter = '\t', file_access = 'a', quoting = csv.QUOTE_NONE):
+    """
+        write to json file, append new list
+            data_list: list - list of data
+    """
+
+    try:
+        with open(file_name, file_access, encoding='utf-8', newline='') as outfile:
+            for item in data_list:
+                data_item = [v for k, v in item.items()] # convert to value list
+                tsv_output = csv.writer(outfile, delimiter=delimiter, lineterminator='\n', quoting=quoting)
+                tsv_output.writerow(data_item)
+        
+        outfile.close()
+
+    except Exception as e:
+        print('Error -- write_list_to_tsv_file: ', e)
+
+
+def write_list_to_csv(file_name, data_list, delimiter = ',', file_access = 'a', quoting = csv.QUOTE_NONE):
+    """
+        write to json file, append new list
+            data_list: list - list of data
+    """
+
+    try:
+        with open(file_name, file_access, encoding='utf-8', newline='') as outfile:
+            for item in data_list:
+                data_item = [v for k, v in item.items()] # convert to value list
+                tsv_output = csv.writer(outfile, delimiter=delimiter, lineterminator='\n', quoting=quoting)
+                tsv_output.writerow(data_item)
+        
+        outfile.close()
+
+    except Exception as e:
+        print('Error -- write_list_to_tsv_file: ', e)
+        
+def read_list_from_csv(file_name, delimiter = ',', encoding = 'utf-8'):
     """
         write a text in a new line to file
             file_name: string - file name
