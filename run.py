@@ -202,11 +202,11 @@ def run(model_name = 'bsrbf_kan', batch_size = 64, n_input = 28*28, epochs = 10,
         print(f"Epoch [{epoch}/{epochs}], Train Loss: {train_loss:.6f}, Train Accuracy: {train_accuracy:.6f}")
         print(f"Epoch [{epoch}/{epochs}], Val Loss: {val_loss:.6f}, Val Accuracy: {val_accuracy:.6f}, F1: {f1:.6f}, Precision: {pre:.6f}, Recall: {recall:.6f}")
         
-        write_single_dict_to_jsonl_file(output_path + '/' + saved_model_history, {'epoch':epoch, 'val_accuracy':val_accuracy, 'train_accuracy':train_accuracy, 'f1_macro':f1, 'pre_macro':pre, 're_macro':recall, 'best_epoch':best_epoch, 'val_loss': val_loss, 'train_loss':train_loss}, file_access = 'a')
+        write_single_dict_to_jsonl(output_path + '/' + saved_model_history, {'epoch':epoch, 'val_accuracy':val_accuracy, 'train_accuracy':train_accuracy, 'f1_macro':f1, 'pre_macro':pre, 're_macro':recall, 'best_epoch':best_epoch, 'val_loss': val_loss, 'train_loss':train_loss}, file_access = 'a')
     
     end = time.time()
     print(f"Training time (s): {end-start}")
-    write_single_dict_to_jsonl_file(output_path + '/' + saved_model_history, {'training time':end-start}, file_access = 'a')
+    write_single_dict_to_jsonl(output_path + '/' + saved_model_history, {'training time':end-start}, file_access = 'a')
     
 def main(args):
     
