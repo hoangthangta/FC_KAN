@@ -248,19 +248,16 @@ class FC_KAN(torch.nn.Module):
             output = torch.sum(X, dim=0) +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
-            return output
         elif (self.combined_type == 'quadratic2'): # not better than "quadratic"
             output = torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
-            return output
         elif (self.combined_type == 'cubic'): # not good
             outsum = torch.sum(X, dim=0)
             output = outsum +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
             output = output*outsum
-            return output
         elif (self.combined_type == 'concat'):
             X_permuted = X.permute(1, 0, 2)
             output = X_permuted.reshape(X_permuted.shape[0], -1)
