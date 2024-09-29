@@ -113,6 +113,7 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 * https://github.com/KindXiaoming/pykan (the original KAN)
 
 # Paper
+Cite our work if this paper is helpful for you.
 ```
 @misc{ta2024fckan,
     title={FC-KAN: Function Combinations in Kolmogorov-Arnold Networks},
@@ -125,7 +126,7 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 ```
 
 # Acknowledgement 
-Give me a star if you like this repo. Thanks!
+Also, give me a star if you like this repo. Thanks!
 
 # Contact
 If you have any questions, please contact: tahoangthang@gmail.com. If you want to know more about me, please visit website: https://tahoangthang.com.
