@@ -4,6 +4,8 @@ In this repository, we apply function combinations in low-dimensional data to de
 
 Our paper, "FC-KAN: Function Combinations in Kolmogorov-Arnold Networks," is available at https://arxiv.org/abs/2409.01763. The paper contains several errors (equations), but we will update the content soon.
 
+![FC-KAN.](https://github.com/hoangthangta/FC_KAN/blob/main/fc_kan_diagram.png)
+
 ![The logarithmic values of training losses for the models over 25 epochs on MNIST and 35 epochs on
 Fashion-MNIST. A quadratic function is used to combine B-Splines and DoG at the output of FC-KAN.](https://github.com/hoangthangta/FC_KAN/blob/main/train_losses.png)
 
