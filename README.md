@@ -35,7 +35,7 @@ def forward(self, x: torch.Tensor):
             output = torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
-        elif (self.combined_type == 'cubic'): # not good
+        elif (self.combined_type == 'cubic'): 
             outsum = torch.sum(X, dim=0)
             output = outsum +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
