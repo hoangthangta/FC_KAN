@@ -172,7 +172,7 @@ class FC_KANLayer(nn.Module):
         
         device = X.device
         
-        # layer normalization
+        # Layer normalization
         X = self.layernorm(X)
         
         output = torch.zeros(X.shape[0], X.shape[1], self.output_dim).to(device)
@@ -191,11 +191,9 @@ class FC_KANLayer(nn.Module):
                 x = F.linear(self.base_activation(x), self.base_weight)
             else:
                 raise Exception('The function "' + f + '" does not support!')
-                # write more functions here...
-           
+                # Write more functions here...
             output[i] = x
         
-
         return output
 
 class FC_KAN(torch.nn.Module):
@@ -207,6 +205,7 @@ class FC_KAN(torch.nn.Module):
         grid_size=5,
         spline_order=3,  
         combined_type = 'quadratic',
+        output_type = 'all',
         base_activation=torch.nn.SiLU,
     ):
         super(FC_KAN, self).__init__()
@@ -215,7 +214,12 @@ class FC_KAN(torch.nn.Module):
         self.layers = torch.nn.ModuleList()
         self.func_list = func_list
         self.combined_type = combined_type
+        self.output_type = output_type
         #self.drop = torch.nn.Dropout(p=0.1) # dropout
+        self.base_activation = base_activation()
+        
+        self.concat_weight = torch.nn.Parameter(torch.Tensor(layer_list[-1], len(func_list)*layer_list[-1]))
+        torch.nn.init.kaiming_uniform_(self.concat_weight, a=math.sqrt(5))
         
         for input_dim, output_dim in zip(layer_list, layer_list[1:]):
             self.layers.append(
@@ -228,10 +232,11 @@ class FC_KAN(torch.nn.Module):
                     base_activation=base_activation,
                 )
             )
-    
+     
     def forward(self, x: torch.Tensor):
         #x = self.drop(x)
-        #device = x.device
+        
+        device = x.device
         
         if (len(self.func_list) == 1):
             raise Exception('The number of functions (func_list) must be larger than 1.')
@@ -242,22 +247,34 @@ class FC_KAN(torch.nn.Module):
         
         output = X.detach().clone()
         if (self.combined_type == 'sum'): output = torch.sum(X, dim=0)
-        elif (self.combined_type == 'product'):  output = torch.prod(X, dim=0)
+        elif (self.combined_type == 'product'):  
+            '''
+            # Use only for very large tensors. This is slower and can have cumulative numerical errors
+            output_prod = torch.ones(X.shape[1:], device=X.device)
+            for i in range(X.shape[0]):
+                output_prod *= X[i, :, :]
+            '''
+            output = torch.prod(X, dim=0)
         elif (self.combined_type == 'sum_product'): output = torch.sum(X, dim=0) +  torch.prod(X, dim=0)
         elif (self.combined_type == 'quadratic'): 
             output = torch.sum(X, dim=0) +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
-        elif (self.combined_type == 'quadratic2'): # not better than "quadratic"
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
+            
+        elif (self.combined_type == 'quadratic2'): 
             output = torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
-        elif (self.combined_type == 'cubic'): # not good
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
+            
+        elif (self.combined_type == 'cubic'):
             outsum = torch.sum(X, dim=0)
             output = outsum +  torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
             output = output*outsum
+            
         elif (self.combined_type == 'concat'):
             X_permuted = X.permute(1, 0, 2)
             output = X_permuted.reshape(X_permuted.shape[0], -1)
@@ -271,6 +288,22 @@ class FC_KAN(torch.nn.Module):
             output, _ = torch.min(X, dim=0)
         elif (self.combined_type == 'mean'):
             output = torch.mean(X, dim=0)
+        elif (self.combined_type == 'rbf'): # for fun only but it is good on MNIST 
+
+            z = torch.zeros(X.shape[1], X.shape[2]).to(device)
+            gamma = 0.5
+
+            # Combine all pairs of tensors in X using RBFs
+            n = len(self.func_list)
+            for i in range(n):
+                for j in range(n):
+                    if i != j:
+                        z += torch.exp(-gamma * torch.pow(X[i] - X[j], 2))
+
+            # Optionally, normalize by the number of combinations
+            z /= n * (n - 1)
+            output = z*X.shape[2] # normalize to the range of output values
+
         else:
             raise Exception('The combined type "' + self.combined_type + '" does not support!')
             # Write more combinations here...
@@ -279,7 +312,3 @@ class FC_KAN(torch.nn.Module):
         #output = output + F.normalize(output, p=2, dim=1)
 
         return output
-        
-            
-        
-        
