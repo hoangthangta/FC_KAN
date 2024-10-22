@@ -205,7 +205,7 @@ class FC_KAN(torch.nn.Module):
         grid_size=5,
         spline_order=3,  
         combined_type = 'quadratic',
-        output_type = 'all',
+        #output_type = 'all',
         base_activation=torch.nn.SiLU,
     ):
         super(FC_KAN, self).__init__()
@@ -214,7 +214,7 @@ class FC_KAN(torch.nn.Module):
         self.layers = torch.nn.ModuleList()
         self.func_list = func_list
         self.combined_type = combined_type
-        self.output_type = output_type
+        #self.output_type = output_type
         #self.drop = torch.nn.Dropout(p=0.1) # dropout
         self.base_activation = base_activation()
         
@@ -235,7 +235,8 @@ class FC_KAN(torch.nn.Module):
      
     def forward(self, x: torch.Tensor):
         #x = self.drop(x)
-        #device = x.device
+        
+        device = x.device
         
         if (len(self.func_list) == 1):
             raise Exception('The number of functions (func_list) must be larger than 1.')
