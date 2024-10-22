@@ -235,8 +235,7 @@ class FC_KAN(torch.nn.Module):
      
     def forward(self, x: torch.Tensor):
         #x = self.drop(x)
-        
-        device = x.device
+        #device = x.device
         
         if (len(self.func_list) == 1):
             raise Exception('The number of functions (func_list) must be larger than 1.')
