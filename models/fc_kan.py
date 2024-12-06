@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from models.functions import *
+
 class RadialBasisFunction(nn.Module):
     def __init__(
         self,
@@ -30,7 +32,8 @@ class FC_KANLayer(nn.Module):
         grid_size = 5,
         spline_order = 3,
         base_activation = torch.nn.SiLU,
-        grid_range=[-1.5, 1.5]
+        grid_range=[-1.5, 1.5],
+        bias = True
 
     ) -> None:
         super().__init__()
@@ -41,9 +44,18 @@ class FC_KANLayer(nn.Module):
         self.base_activation = base_activation()
         self.input_dim = input_dim
         self.func_list = func_list
-
-        self.base_weight = torch.nn.Parameter(torch.Tensor(self.output_dim, self.input_dim))
-        torch.nn.init.kaiming_uniform_(self.base_weight, a=math.sqrt(5))
+        self.use_bias = bias # for SKAN
+        
+        # add bias
+        if bias:
+            #self.weight = nn.Parameter(torch.Tensor(out_features, in_features+1).to(device))
+            self.base_weight = torch.nn.Parameter(torch.Tensor(self.output_dim, self.input_dim + 1))
+            torch.nn.init.kaiming_uniform_(self.base_weight, a=math.sqrt(5))
+        else:
+            #self.weight = nn.Parameter(torch.Tensor(out_features, in_features).to(device))
+            self.base_weight = torch.nn.Parameter(torch.Tensor(self.output_dim, self.input_dim))
+            torch.nn.init.kaiming_uniform_(self.base_weight, a=math.sqrt(5))
+        
                 
         self.spline_weight = torch.nn.Parameter(torch.Tensor(self.output_dim, self.input_dim*(grid_size+spline_order)))
         torch.nn.init.kaiming_uniform_(self.spline_weight, a=math.sqrt(5))
@@ -67,7 +79,8 @@ class FC_KANLayer(nn.Module):
         self.translation = nn.Parameter(torch.zeros(self.output_dim, self.input_dim))
         
         # Batch normalization
-        self.bn = nn.BatchNorm1d(self.output_dim)
+        #self.bn = nn.BatchNorm1d(self.output_dim)
+        
         
     def b_splines(self, x: torch.Tensor):
         """
@@ -101,7 +114,6 @@ class FC_KANLayer(nn.Module):
             self.grid_size + self.spline_order,
         )
         return bases.contiguous()    
-    
 
     def wavelet_transform(self, x, wavelet_type = 'dog'):
         if x.dim() == 2:
@@ -189,6 +201,37 @@ class FC_KANLayer(nn.Module):
                 x = self.wavelet_transform(x, wavelet_type = 'dog')
             elif (f == 'base'):
                 x = F.linear(self.base_activation(x), self.base_weight)
+            
+            elif (f in ['shifted_softplus', 'arctan', 'relu', 'elu', 'gelup', 'leaky_relu', 'swish', 'softplus', 'sigmoid', 'hard_sigmoid', 'sin', 'cos']):
+                x = x.view(-1, 1, self.input_dim)
+                if self.use_bias:
+                    x = torch.cat([x, torch.ones_like(x[..., :1])], dim=2)   
+                
+                if (f == 'shifted_softplus'): # shifted softplus
+                    x = llshifted_softplus(x, self.base_weight)
+                elif (f == 'arctan'):
+                    x = larctan(x, self.base_weight)
+                elif (f == 'relu'):
+                    x = lrelu(x, self.base_weight)
+                elif (f == 'elu'):
+                    x = lelu(x, self.base_weight)
+                elif (f == 'gelup'):
+                    x = lgelup(x, self.base_weight)
+                elif (f == 'leaky_relu'):
+                    x = lleaky_relu(x, self.base_weight)
+                elif (f == 'swish'):
+                    x = lswish(x, self.base_weight)
+                elif (f == 'softplus'):
+                    x = lsoftplus(x, self.base_weight)
+                elif (f == 'sigmoid'):
+                    x = lsigmoid(x, self.base_weight)
+                elif (f == 'hard_sigmoid'):
+                    x = lhard_sigmoid(x, self.base_weight)
+                elif (f == 'sin'):
+                    x = lsin(x, self.base_weight)
+                elif (f == 'cos'):
+                    x = lcos(x, self.base_weight)
+                x = torch.sum(x, dim=2)
             else:
                 raise Exception('The function "' + f + '" does not support!')
                 # Write more functions here...
@@ -232,11 +275,41 @@ class FC_KAN(torch.nn.Module):
                     base_activation=base_activation,
                 )
             )
-     
+    
+    def combine_attention(self, x_set):
+        """
+        Combine a set of tensors using an attention mechanism.
+        
+        Args:
+            x_set (torch.Tensor): Tensor of shape (n, batch_size, feature_dim).
+                                  n = number of tensors.
+        
+        Returns:
+            torch.Tensor: Combined tensor of shape (batch_size, feature_dim).
+        """
+        n, batch_size, feature_dim = x_set.shape
+
+        # Compute pairwise attention scores
+        # Flatten tensors along batch and feature dimensions
+        queries = x_set.view(n, -1)  # Shape: (n, batch_size * feature_dim)
+        keys = x_set.view(n, -1).T  # Shape: (batch_size * feature_dim, n)
+
+        attention_scores = F.softmax(torch.matmul(queries, keys), dim=1)  # Shape: (n, n)
+
+        # Apply attention scores to combine tensors
+        # Expand dimensions for broadcasting
+        attention_scores = attention_scores.unsqueeze(-1).unsqueeze(-1)  # Shape: (n, n, 1, 1)
+        weighted_tensors = attention_scores * x_set.unsqueeze(0)  # Shape: (n, n, batch_size, feature_dim)
+
+        # Sum and prod over the set dimension
+        combined_tensor = torch.sum(weighted_tensors, dim=0)
+        combined_tensor = torch.prod(combined_tensor, dim=0)
+        
+        return combined_tensor
+        
     def forward(self, x: torch.Tensor):
         #x = self.drop(x)
-        
-        device = x.device
+        #device = x.device
         
         if (len(self.func_list) == 1):
             raise Exception('The number of functions (func_list) must be larger than 1.')
@@ -303,7 +376,8 @@ class FC_KAN(torch.nn.Module):
             # Optionally, normalize by the number of combinations
             z /= n * (n - 1)
             output = z*X.shape[2] # normalize to the range of output values
-
+        elif (self.combined_type == 'attention'):
+            output = self.combine_attention(X)
         else:
             raise Exception('The combined type "' + self.combined_type + '" does not support!')
             # Write more combinations here...
