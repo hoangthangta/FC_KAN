@@ -33,7 +33,7 @@ class FC_KANLayer(nn.Module):
         spline_order = 3,
         base_activation = torch.nn.SiLU,
         grid_range=[-1.5, 1.5],
-        bias = True
+        bias = False
 
     ) -> None:
         super().__init__()
