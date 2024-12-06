@@ -1,4 +1,8 @@
 
+# Update
+## 06 Dec, 2024 
++ Add SKAN and LArctan-SKAN: https://github.com/chikkkit/SKAN/, https://github.com/chikkkit/LArctan-SKAN
+
 # FC-KAN
 In this repository, we apply function combinations in low-dimensional data to design Kolmogorov-Arnold Networks, referred to as **FC-KAN** (**F**unction **C**ombinations in **K**olmogorov-**A**rnold **N**etworks). The experiments demonstrate that these combinations improve the model performance.
 
