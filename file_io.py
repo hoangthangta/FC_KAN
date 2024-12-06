@@ -22,7 +22,7 @@ def write_to_csv(file_name, header_list, data_dict):
             #writer.writeheader()
             writer.writerow(data_dict)
     except Exception as e:
-        print('Error -- write_data_to_csv_file: ', e)
+        print('Error -- write_data_to_csv: ', e)
         pass
 
         
@@ -41,7 +41,7 @@ def write_to_text(file_name, data, file_access = 'w'):
                 f.write(data + '\n')
         f.close()
     except Exception as e:
-        print('Error -- write_to_text_file: ', e)
+        print('Error -- write_to_text: ', e)
     
 
 def write_list_to_json(file_name, data_list, file_access = 'a'):
@@ -55,7 +55,7 @@ def write_list_to_json(file_name, data_list, file_access = 'a'):
             json.dump(data_list, outfile, indent=4, separators=(', ', ': '), ensure_ascii=False, cls=NumpyEncoder)
         outfile.close()
     except Exception as e:
-        print('Error -- write_list_to_json_file: ', e)
+        print('Error -- write_list_to_json: ', e)
 
 def write_list_to_jsonl(file_name, data_list, file_access = 'a'):
     """
@@ -71,13 +71,13 @@ def write_list_to_jsonl(file_name, data_list, file_access = 'a'):
                 outfile.write('\n')
         outfile.close()
     except Exception as e:
-        print('Error -- write_list_to_jsonl_file: ', e)
+        print('Error -- write_list_to_jsonl: ', e)
 
 
-def write_single_dict_to_jsonl(out_file_name, data_dict, try_no = 0, limit = 10, file_access = 'a', format_json = False):
+def write_single_dict_to_jsonl(file_name, data_dict, try_no = 0, limit = 10, file_access = 'a', format_json = False):
     """
         write list to *.json file
-            out_file_name: string - file name
+            file_name: string - file name
             data_dict: dict - a single data dictionary
             try_no:  int - the number of times to try to write
             return: void
@@ -85,7 +85,7 @@ def write_single_dict_to_jsonl(out_file_name, data_dict, try_no = 0, limit = 10,
 
     try:        
         data_string = json.dumps(data_dict, separators=(', ', ': '), ensure_ascii=False, cls=NumpyEncoder)
-        with open(out_file_name, file_access, encoding='utf-8') as outfile:
+        with open(file_name, file_access, encoding='utf-8') as outfile:
             if (format_json == False):
                 outfile.write(data_string + '\n')
             else:
@@ -94,17 +94,17 @@ def write_single_dict_to_jsonl(out_file_name, data_dict, try_no = 0, limit = 10,
         return True
         
     except Exception as e:
-        print('Error -- write_single_dict_to_json_file: ', e)
+        print('Error -- write_single_dict_to_json: ', e)
         try_no += 1
         if (try_no <= limit):
-            return write_single_dict_to_jsonl_file(out_file_name, data_dict, try_no, file_access) # try to read file again
+            return write_single_dict_to_jsonl(file_name, data_dict, try_no, file_access) # try to read file again
 
     return False
     
-def write_single_dict_to_json(out_file_name, data_dict, try_no = 0, file_access = 'a', limit = 10, format_json = False):
+def write_single_dict_to_json(file_name, data_dict, try_no = 0, file_access = 'a', limit = 10, format_json = False):
     """
         write list to *.json file
-            out_file_name: string - file name
+            file_name: string - file name
             data_dict: dict - a single data dictionary
             try_no:  int - the number of times to try to write
             return: void
@@ -113,7 +113,7 @@ def write_single_dict_to_json(out_file_name, data_dict, try_no = 0, file_access 
     try:        
         # indent=4,
         data_string = json.dumps(data_dict, separators=(', ', ': '), ensure_ascii=False, cls=NumpyEncoder)
-        with open(out_file_name, file_access, encoding='utf-8') as outfile:
+        with open(file_name, file_access, encoding='utf-8') as outfile:
             if (format_json == False):
                 outfile.write(data_string + ',\n')
             else:
@@ -122,23 +122,23 @@ def write_single_dict_to_json(out_file_name, data_dict, try_no = 0, file_access 
         return True
         
     except Exception as e:
-        print('Error -- write_single_dict_to_json_file: ', e)
+        print('Error -- write_single_dict_to_json: ', e)
         try_no += 1
         if (try_no <= limit):
-            return write_single_dict_to_json_file(out_file_name, data_dict, try_no, file_access) # try to read file again
+            return write_single_dict_to_json(file_name, data_dict, try_no, file_access) # try to read file again
 
     return False
 
-def read_list_from_json(out_file_name, format_json = True, try_no = 0, limit = 10):
+def read_list_from_json(file_name, format_json = True, try_no = 0, limit = 10):
     """
         load list from *.json file
-            out_file_name: string - file name
+            file_name: string - file name
             return: list - a return list
     """
 
     result_list = []
     try:
-        with open(out_file_name, 'r', encoding='utf-8') as outfile:
+        with open(file_name, 'r', encoding='utf-8') as outfile:
             text = outfile.read()
             text = text.strip(',\n') # remove the start & last syntaxes
 
@@ -149,27 +149,27 @@ def read_list_from_json(out_file_name, format_json = True, try_no = 0, limit = 1
         outfile.close()
 
     except Exception as e:
-        print('Error -- read_list_from_json_file: ', e)
+        print('Error -- read_list_from_json: ', e)
         try_no += 1
         if (try_no <= limit):
             custom_time.sleep(2)
-            return read_list_from_json_file(out_file_name, format_json, try_no) # try to read file again
+            return read_list_from_json(file_name, format_json, try_no) # try to read file again
         pass
     
     return result_list
     
 
-def read_list_from_jsonl(out_file_name, try_no = 0, limit = 10):
+def read_list_from_jsonl(file_name, try_no = 0, limit = 10):
     """
         load list from *.json file
-            out_file_name: string - file name
+            file_name: string - file name
             return: list - a return list
     """
 
     result_list = []
     i = 0
     try:
-        with open(out_file_name, 'r', encoding='utf-8') as outfile:
+        with open(file_name, 'r', encoding='utf-8') as outfile:
             for line in outfile:
                 item = json.loads(line) 
                 result_list.append(item)
@@ -177,11 +177,11 @@ def read_list_from_jsonl(out_file_name, try_no = 0, limit = 10):
 
         outfile.close()
     except Exception as e:
-        print('Error -- read_list_from_jsonl_file: ', e, '-- check line: ', i)
+        print('Error -- read_list_from_jsonl: ', e, '-- check line: ', i)
         try_no += 1
         if (try_no <= limit):
             custom_time.sleep(2)
-            return read_list_from_jsonl_file(out_file_name, try_no) # try to read file again
+            return read_list_from_jsonl(file_name, try_no) # try to read file again
         pass
     
     return result_list
@@ -202,7 +202,7 @@ def write_list_to_text(file_name, data_list, file_access = 'a'):
             f.write(data)
         f.close()
     except Exception as e:
-        print('Error -- write_list_from_text_file: ', e)
+        print('Error -- write_list_from_text: ', e)
 
 
 def read_list_from_text(file_name):
@@ -219,7 +219,7 @@ def read_list_from_text(file_name):
               #print(line)
         f.close()
     except:
-        print('Error -- read_list_from_text_file: ', e)
+        print('Error -- read_list_from_text: ', e)
         with open(file_name, 'a', encoding='utf-8') as f: # create a new empty file
             f.close()
 
@@ -262,7 +262,7 @@ def write_list_to_tsv(file_name, data_list, delimiter = '\t', file_access = 'a',
         outfile.close()
 
     except Exception as e:
-        print('Error -- write_list_to_tsv_file: ', e)
+        print('Error -- write_list_to_tsv: ', e)
 
 
 def write_list_to_csv(file_name, data_list, delimiter = ',', file_access = 'a', quoting = csv.QUOTE_NONE):
@@ -281,7 +281,7 @@ def write_list_to_csv(file_name, data_list, delimiter = ',', file_access = 'a', 
         outfile.close()
 
     except Exception as e:
-        print('Error -- write_list_to_tsv_file: ', e)
+        print('Error -- write_list_to_tsv: ', e)
         
 def read_list_from_csv(file_name, delimiter = ',', encoding = 'utf-8'):
     """
@@ -299,7 +299,7 @@ def read_list_from_csv(file_name, delimiter = ',', encoding = 'utf-8'):
                 data_list.append(line)
         f.close()
     except Exception as e:
-        print('Error -- read_list_from_csv_file: ', e)
+        print('Error -- read_list_from_csv: ', e)
         with open(file_name, 'a', encoding=encoding) as f: # create a new empty file
             f.close()
 
