@@ -1,5 +1,7 @@
 
 # Update
+## 24 Feb, 2025
++ Add "quadratic3", x_1^2 + x_2^2 + ... + x_n^2
 ## 06 Dec, 2024 
 + Add SKAN and LArctan-SKAN: https://github.com/chikkkit/SKAN/, https://github.com/chikkkit/LArctan-SKAN
 + Add "attention" combination
