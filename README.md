@@ -16,63 +16,90 @@ Our paper, "FC-KAN: Function Combinations in Kolmogorov-Arnold Networks," is ava
 # How to combine?
 We can use some element-wise operations to combine the functions' outputs by different methods.
 ```
-def forward(self, X):
+def forward(self, x: torch.Tensor):
+        #x = self.drop(x)
+        #device = x.device
         
-        device = X.device
+        if (len(self.func_list) == 1):
+            raise Exception('The number of functions (func_list) must be larger than 1.')
         
-        # Layer normalization
-        X = self.layernorm(X)
+        X = torch.stack([x] * len(self.func_list)) # size (number of functions, batch_size, input_dim)
+        for layer in self.layers: 
+            X = layer(X)
         
-        output = torch.zeros(X.shape[0], X.shape[1], self.output_dim).to(device)
-        for i, f in zip(range(X.shape[0]), self.func_list):
+        output = X.detach().clone()
+        if (self.combined_type == 'sum'): output = torch.sum(X, dim=0)
+        elif (self.combined_type == 'product'):  
+            '''
+            # Use only for very large tensors. This is slower and can have cumulative numerical errors
+            output_prod = torch.ones(X.shape[1:], device=X.device)
+            for i in range(X.shape[0]):
+                output_prod *= X[i, :, :]
+            '''
+            output = torch.prod(X, dim=0)
+        elif (self.combined_type == 'sum_product'): output = torch.sum(X, dim=0) +  torch.prod(X, dim=0)
+        elif (self.combined_type == 'quadratic'): 
+            output = torch.sum(X, dim=0) +  torch.prod(X, dim=0) 
+            for i in range(X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
             
-            x = X[i, :, :].squeeze(0)
-            if (f == 'rbf'):
-                x = self.rbf(x).view(x.size(0), -1)
-                x = F.linear(x, self.spline_weight)
-            elif (f == 'bs'):
-                x = self.b_splines(x).view(x.size(0), -1)
-                x = F.linear(x, self.spline_weight)
-            elif (f == 'dog'):
-                x = self.wavelet_transform(x, wavelet_type = 'dog')
-            elif (f == 'base'):
-                x = F.linear(self.base_activation(x), self.base_weight)
-            
-            elif (f in ['shifted_softplus', 'arctan', 'relu', 'elu', 'gelup', 'leaky_relu', 'swish', 'softplus', 'sigmoid', 'hard_sigmoid', 'sin', 'cos']):
-                x = x.view(-1, 1, self.input_dim)
-                if self.use_bias:
-                    x = torch.cat([x, torch.ones_like(x[..., :1])], dim=2)   
-                
-                if (f == 'shifted_softplus'): # shifted softplus
-                    x = llshifted_softplus(x, self.base_weight)
-                elif (f == 'arctan'):
-                    x = larctan(x, self.base_weight)
-                elif (f == 'relu'):
-                    x = lrelu(x, self.base_weight)
-                elif (f == 'elu'):
-                    x = lelu(x, self.base_weight)
-                elif (f == 'gelup'):
-                    x = lgelup(x, self.base_weight)
-                elif (f == 'leaky_relu'):
-                    x = lleaky_relu(x, self.base_weight)
-                elif (f == 'swish'):
-                    x = lswish(x, self.base_weight)
-                elif (f == 'softplus'):
-                    x = lsoftplus(x, self.base_weight)
-                elif (f == 'sigmoid'):
-                    x = lsigmoid(x, self.base_weight)
-                elif (f == 'hard_sigmoid'):
-                    x = lhard_sigmoid(x, self.base_weight)
-                elif (f == 'sin'):
-                    x = lsin(x, self.base_weight)
-                elif (f == 'cos'):
-                    x = lcos(x, self.base_weight)
-                x = torch.sum(x, dim=2)
-            else:
-                raise Exception('The function "' + f + '" does not support!')
-                # Write more functions here...
-            output[i] = x
+        elif (self.combined_type == 'quadratic2'): 
+            output = torch.prod(X, dim=0) 
+            for i in range(X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
         
+        elif (self.combined_type == 'quadratic3'): 
+            output = X[0, :, :].squeeze(0)*X[0, :, :].squeeze(0)
+            for i in range(1, X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
+            
+        elif (self.combined_type == 'cubic'):
+            outsum = torch.sum(X, dim=0)
+            output = outsum +  torch.prod(X, dim=0) 
+            for i in range(X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            output = output*outsum
+            
+        elif (self.combined_type == 'concat'):
+            X_permuted = X.permute(1, 0, 2)
+            output = X_permuted.reshape(X_permuted.shape[0], -1)
+        elif (self.combined_type == 'concat_linear'):
+            X_permuted = X.permute(1, 0, 2)
+            output = X_permuted.reshape(X_permuted.shape[0], -1)
+            output = F.linear(output, self.concat_weight)
+        elif (self.combined_type == 'max'):
+            output, _ = torch.max(X, dim=0)
+        elif (self.combined_type == 'min'):
+            output, _ = torch.min(X, dim=0)
+        elif (self.combined_type == 'mean'):
+            output = torch.mean(X, dim=0)
+        elif (self.combined_type == 'rbf'): # for fun only but it is good on MNIST 
+
+            z = torch.zeros(X.shape[1], X.shape[2]).to(device)
+            gamma = 0.5
+
+            # Combine all pairs of tensors in X using RBFs
+            n = len(self.func_list)
+            for i in range(n):
+                for j in range(n):
+                    if i != j:
+                        z += torch.exp(-gamma * torch.pow(X[i] - X[j], 2))
+
+            # Optionally, normalize by the number of combinations
+            z /= n * (n - 1)
+            output = z*X.shape[2] # normalize to the range of output values
+        elif (self.combined_type == 'attention'):
+            output = self.combine_attention(X)
+        else:
+            raise Exception('The combined type "' + self.combined_type + '" does not support!')
+            # Write more combinations here...
+
+        #output = self.base_activation(output) # SiLU
+        #output = output + F.normalize(output, p=2, dim=1)
+
         return output
 ```
 
