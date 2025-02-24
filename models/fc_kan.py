@@ -201,12 +201,10 @@ class FC_KANLayer(nn.Module):
                 x = self.wavelet_transform(x, wavelet_type = 'dog')
             elif (f == 'base'):
                 x = F.linear(self.base_activation(x), self.base_weight)
-            
             elif (f in ['shifted_softplus', 'arctan', 'relu', 'elu', 'gelup', 'leaky_relu', 'swish', 'softplus', 'sigmoid', 'hard_sigmoid', 'sin', 'cos']):
                 x = x.view(-1, 1, self.input_dim)
                 if self.use_bias:
-                    x = torch.cat([x, torch.ones_like(x[..., :1])], dim=2)   
-                
+                    x = torch.cat([x, torch.ones_like(x[..., :1])], dim=2)
                 if (f == 'shifted_softplus'): # shifted softplus
                     x = llshifted_softplus(x, self.base_weight)
                 elif (f == 'arctan'):
@@ -338,6 +336,12 @@ class FC_KAN(torch.nn.Module):
         elif (self.combined_type == 'quadratic2'): 
             output = torch.prod(X, dim=0) 
             for i in range(X.shape[0]):
+                output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
+            #output += torch.sum(X ** 2, dim=0) # can lead to memory error
+        
+        elif (self.combined_type == 'quadratic3'): 
+            output = X[0, :, :].squeeze(0)*X[0, :, :].squeeze(0)
+            for i in range(1, X.shape[0]):
                 output = output + X[i, :, :].squeeze(0)*X[i, :, :].squeeze(0)
             #output += torch.sum(X ** 2, dim=0) # can lead to memory error
             
