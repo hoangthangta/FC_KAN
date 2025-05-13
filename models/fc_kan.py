@@ -33,7 +33,8 @@ class FC_KANLayer(nn.Module):
         spline_order = 3,
         base_activation = torch.nn.SiLU,
         grid_range=[-1.5, 1.5],
-        bias = False
+        bias = False,
+        drop_out = 0,
 
     ) -> None:
         super().__init__()
@@ -73,7 +74,9 @@ class FC_KANLayer(nn.Module):
         )
         self.register_buffer("grid", grid)
         #self.linear = nn.Linear(self.input_dim*(grid_size+spline_order), self.output_dim)
-        #self.drop = nn.Dropout(p=0.1) # dropout
+        
+        self.drop_out = drop_out
+        self.drop = nn.Dropout(p=drop_out) # dropout
         
         self.scale = nn.Parameter(torch.ones(self.output_dim, self.input_dim))
         self.translation = nn.Parameter(torch.zeros(self.output_dim, self.input_dim))
@@ -233,6 +236,10 @@ class FC_KANLayer(nn.Module):
             else:
                 raise Exception('The function "' + f + '" does not support!')
                 # Write more functions here...
+            
+            # drop after functions
+            if (self.drop_out > 0):
+                x = self.drop(x)
             output[i] = x
         
         return output
@@ -248,6 +255,7 @@ class FC_KAN(torch.nn.Module):
         combined_type = 'quadratic',
         #output_type = 'all',
         base_activation=torch.nn.SiLU,
+        drop_out = 0,
     ):
         super(FC_KAN, self).__init__()
         self.grid_size = grid_size
@@ -256,7 +264,7 @@ class FC_KAN(torch.nn.Module):
         self.func_list = func_list
         self.combined_type = combined_type
         #self.output_type = output_type
-        #self.drop = torch.nn.Dropout(p=0.1) # dropout
+        #self.drop = torch.nn.Dropout(p=drop_out) # dropout
         self.base_activation = base_activation()
         
         self.concat_weight = torch.nn.Parameter(torch.Tensor(layer_list[-1], len(func_list)*layer_list[-1]))
@@ -271,6 +279,7 @@ class FC_KAN(torch.nn.Module):
                     grid_size=grid_size,
                     spline_order=spline_order,
                     base_activation=base_activation,
+                    drop_out = drop_out
                 )
             )
     
@@ -306,15 +315,19 @@ class FC_KAN(torch.nn.Module):
         return combined_tensor
         
     def forward(self, x: torch.Tensor):
-        #x = self.drop(x)
+        
         #device = x.device
-        
-        if (len(self.func_list) == 1):
-            raise Exception('The number of functions (func_list) must be larger than 1.')
-        
+
         X = torch.stack([x] * len(self.func_list)) # size (number of functions, batch_size, input_dim)
         for layer in self.layers: 
             X = layer(X)
+        
+        #X = self.drop(X)
+        
+        # Allow single functions for ablation study
+        if (len(self.func_list) == 1):
+            return X[0]
+            #raise Exception('The number of functions (func_list) must be larger than 1.')
         
         output = X.detach().clone()
         if (self.combined_type == 'sum'): output = torch.sum(X, dim=0)

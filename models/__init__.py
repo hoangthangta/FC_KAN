@@ -7,8 +7,10 @@ from .mlp import MLP
 from .fc_kan import FC_KAN
 from .skan import SKAN
 
+from .cnn import SmallCNN
+
 #from .functions import lsin, lcos, larctan, lrelu, lleaky_relu, lswish, lmish, lsoftplus, lhard_sigmoid, lelu, lshifted_softplus, lgelup
 # "lsin", "lcos", "larctan", "lrelu", "lleaky_relu", "lswish", "lmish", "lsoftplus", "lhard_sigmoid", "lelu", "lshifted_softplus", "lgelup"
 
-__all__ = ["EfficientKAN", "EfficientKANLinear", "FastKAN", "FasterKAN", "BSRBF_KAN", "GottliebKAN", "MLP", "FC_KAN", "SKAN"]
+__all__ = ["EfficientKAN", "EfficientKANLinear", "FastKAN", "FasterKAN", "BSRBF_KAN", "GottliebKAN", "MLP", "FC_KAN", "SKAN", "SmallCNN"]
 
