@@ -12,7 +12,7 @@ import requests
 
 #import numpy as np
 from file_io import *
-from models import EfficientKAN, FastKAN, BSRBF_KAN, FasterKAN, MLP, FC_KAN, GottliebKAN, SKAN
+from models import EfficientKAN, FastKAN, BSRBF_KAN, FasterKAN, MLP, FC_KAN, GottliebKAN, SKAN, SmallCNN
 
 from pathlib import Path
 from PIL import Image
@@ -22,6 +22,9 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import matplotlib.pyplot as plt
+
+from sklearn.model_selection import ParameterGrid
+
 
 def remove_unused_params(model):
     
@@ -91,6 +94,11 @@ def run(args):
         transforms.Normalize((0.5,), (0.5,))
         ])
     
+    transform_cifar = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    ])
+    
     trainset, valset = [], []
     if (args.ds_name == 'mnist'):
         trainset = torchvision.datasets.MNIST(
@@ -112,6 +120,15 @@ def run(args):
         from ds_model import SignLanguageMNISTDataset
         trainset = SignLanguageMNISTDataset(csv_file='data/SignMNIST/sign_mnist_train.csv', transform=transform)
         valset = SignLanguageMNISTDataset(csv_file='data/SignMNIST/sign_mnist_test.csv', transform=transform)
+    
+    elif(args.ds_name == 'cifar10'):
+        trainset = torchvision.datasets.CIFAR10(
+            root='./data', train=True, download=True,  transform=transform_cifar
+        )
+
+        valset = torchvision.datasets.CIFAR10(
+            root="./data", train=False, download=True, transform=transform_cifar
+        )
 
     if (args.n_examples > 0):
         if (args.n_examples/args.batch_size > 1):
@@ -129,7 +146,7 @@ def run(args):
     print('trainset: ', len(trainset))
     print('valset: ', len(valset))
     
-    trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=False)
+    trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=False) # we can want to keep the stability of models when training
     valloader = DataLoader(valset, batch_size=args.batch_size, shuffle=False)
 
     # Create model storage
@@ -163,24 +180,26 @@ def run(args):
     elif(args.model_name == 'mlp'):
         model = MLP([args.n_input, args.n_hidden, args.n_output])
     elif(args.model_name == 'fc_kan'):
-        model = FC_KAN([args.n_input, args.n_hidden, args.n_output], args.func_list, combined_type = args.combined_type, grid_size = args.grid_size, spline_order = args.spline_order)
+        model = FC_KAN([args.n_input, args.n_hidden, args.n_output], args.func_list, combined_type = args.combined_type, grid_size = args.grid_size, spline_order = args.spline_order, drop_out = args.drop_out)
     elif(args.model_name == 'efficient_kan'):
         model = EfficientKAN([args.n_input, args.n_hidden, args.n_output], grid_size = args.grid_size, spline_order = args.spline_order)
-    elif(args.model_name == 'prkan'):
-        model = PRKAN([args.n_input, args.n_hidden, args.n_output], grid_size = args.grid_size, spline_order = args.spline_order, num_grids = args.num_grids, func = args.func, norm_type = args.kan_norm, base_activation = args.base_activation)
     elif(args.model_name == 'skan'):
         model = SKAN([args.n_input, args.n_hidden, args.n_output], basis_function = args.basis_function) # lshifted_softplus, larctan 
+    elif(args.model_name == 'cnn'):
+        if (args.ds_name == 'cifar10'):
+            model = SmallCNN(in_channels = 3)
+        else:
+            model = SmallCNN(in_channels = 1) # MNIST and Fashion-MNIST
     else:
         raise ValueError("Unsupported network type.")
     model.to(device)
     
     # Define optimizer
-    lr = 1e-3
-    wc = 1e-4
-    optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=wc)
+    
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
     
     # Define learning rate scheduler
-    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.8)
+    scheduler = optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.gamma)
     
     # Define loss
     criterion = nn.CrossEntropyLoss()
@@ -194,8 +213,9 @@ def run(args):
         model.train()
         train_accuracy, train_loss = 0, 0
         with tqdm(trainloader) as pbar:
-            for i, (images, labels) in enumerate(pbar):
-                images = images.view(-1, args.n_input).to(device)
+            for i, (images, labels) in enumerate(pbar):  
+                if (args.model_name != 'cnn'):
+                    images = images.view(-1, args.n_input).to(device)
                 optimizer.zero_grad()
                 output = model(images.to(device))
                 loss = criterion(output, labels.to(device))
@@ -216,7 +236,8 @@ def run(args):
         y_pred = []
         with torch.no_grad():
             for images, labels in valloader:
-                images = images.view(-1, args.n_input).to(device)
+                if (args.model_name != 'cnn'):
+                    images = images.view(-1, args.n_input).to(device)
                 output = model(images.to(device))
                 val_loss += criterion(output, labels.to(device)).item()
                 y_pred += output.argmax(dim=1).tolist()
@@ -258,6 +279,8 @@ def run(args):
     torch.save(model, output_path + '/' + saved_model_name)
     count_params(model)
     
+    return best_accuracy
+    
 
 def predict_set(args):
     
@@ -276,6 +299,8 @@ def predict_set(args):
         dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transform)
     elif args.ds_name == 'fashion_mnist':
         dataset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=True, transform=transform)
+    elif args.ds_name == 'cifar10':
+        dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_cifar)
     else:
         raise ValueError("Unsupported dataset name. Use 'mnist' or 'fashion_mnist'.")
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
@@ -296,7 +321,8 @@ def predict_set(args):
     with torch.no_grad():  # Disable gradient calculation
         for images, labels in loader:
             batch_size, _, height, width = images.shape # extract all dimensions
-            images = images.view(-1, height*width).to(device)
+            if (args.ds_name != 'cifar10'):
+                images = images.view(-1, height*width).to(device)
             output = model(images.to(device))
             val_loss += criterion(output, labels.to(device)).item()
             y_pred += output.argmax(dim=1).tolist()
@@ -344,6 +370,81 @@ def predict_set(args):
         false_dict = predict_set(m, model_path, dataset, batch_size = 64)
         dict_list.append({m:false_dict})
     print(dict_list)'''
+
+def single_grid_search(args, num_runs = 5):
+    val_scores = []
+    for i in range(num_runs):
+        args.note = 'full_' + '-'.join(str(j) for j in [i, args.spline_order, args.grid_size])
+        val_score = run(args)
+        val_scores.append(val_score)
+        time.sleep(30)
+    avg_val_score = sum(val_scores) / num_runs
+    return avg_val_score
+    
+def run_grid_search(args):
+    param_grid = {
+        'grid_size': [2, 3, 5, 8],     
+        'spline_order': [1, 2, 3, 4],        
+        'learning_rate': [args.lr], # 1e-3
+        'weight_decay': [args.wd], # 1e-4
+        'gamma': [args.gamma], # 0.8
+        'model_name': ['fc_kan'],
+        'epochs': [args.epochs],
+        'batch_size': [args.batch_size],
+        'n_input': [args.n_input],
+        'n_hidden': [args.n_hidden],
+        'n_output': [args.n_output],
+        'ds_name': [args.ds_name],
+        'func_list': [['bs','dog']],
+        'combined_type': ['quadratic'],
+    }
+
+    best_score = float('-inf')  # or some appropriate initialization for tracking the best score
+    best_params = None
+    
+    i = 0
+    flag = False
+    for params in ParameterGrid(param_grid):
+
+        '''if (params['grid_size'] == 8):
+            if (params['spline_order'] == 4):
+                flag = True'''
+        #if (flag == False): continue
+        
+        #print('params: ', params)
+        for key, value in params.items():
+            setattr(args, key, value)
+        
+        '''global device
+        if i%2 == 0:
+            
+            args.device = 'cuda'
+            device = 'cuda'
+        else:
+            
+            args.device = 'cpu'
+            device = 'cpu'''
+
+        avg_score = single_grid_search(args)  
+        params['score'] = avg_score
+        
+        # Write to file
+        output_path = 'output/' 
+        Path(output_path).mkdir(parents=True, exist_ok=True)
+        write_single_dict_to_jsonl(output_path + '/' + 'grid_result.json', params, file_access = 'a')
+        
+        print(f"Params: {vars(args)}, Average Validation Score: {avg_score}")
+        if avg_score > best_score:
+            best_score = avg_score
+            best_params = vars(args)
+    
+        print('Best current result: ', best_params, best_score)
+        print('--------------------------------------------------')
+        i = i + 1
+    
+    print('Best final result: ', best_params, best_score)
+    return best_params, best_score
+
    
 def main(args):
     
@@ -355,13 +456,15 @@ def main(args):
         run(args)
     elif(args.mode == 'predict_set'):
         predict_set(args)
+    elif(args.mode == 'grid_search'):
+        run_grid_search(args)
     '''else:
         compare(dataset = args.ds_name)'''
     
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Training Parameters')
-    parser.add_argument('--mode', type=str, default='train') # or test
+    parser.add_argument('--mode', type=str, default='train') # or 'predict_set', 'grid_search'
     parser.add_argument('--model_name', type=str, default='efficient_kan')
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=64)
@@ -379,12 +482,15 @@ if __name__ == "__main__":
     parser.add_argument('--n_part', type=float, default=0)
     parser.add_argument('--func_list', type=str, default='dog,rbf') # for FC-KAN
     parser.add_argument('--combined_type', type=str, default='quadratic')
+    
+    parser.add_argument('--wd', type=float, default=1e-4) # weight decay
+    parser.add_argument('--lr', type=float, default=1e-3) # learning rate
+    parser.add_argument('--gamma', type=float, default=0.8) # learning rate
+    parser.add_argument('--drop_out', type=float, default=0) # learning rate
+    
 
     # use for SKAN
     parser.add_argument('--basis_function', type=str, default='sin')
-    
-    # use for PRKAN
-    parser.add_argument('--func', type=str, default='rbf')
     
     args = parser.parse_args()
     
@@ -397,7 +503,7 @@ if __name__ == "__main__":
 
 #python run.py --mode "train" --model_name "fc_kan" --epochs 35 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "fashion_mnist" --func_list "dog,sin" --combined_type "sum"
 
-#python run.py --mode "train" --model_name "bsrbf_kan" --epochs 10 --batch_size 64 --n_input 784 --n_hidden 100 --n_output 10 --grid_size 5 --spline_order 3 --ds_name "mnist"
+#python run.py --mode "train" --model_name "bsrbf_kan" --epochs 1 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --grid_size 5 --spline_order 3 --ds_name "mnist"
 
 #python run.py --mode "train" --model_name "skan" --epochs 10 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --basis_function "sin"
 
@@ -407,9 +513,19 @@ if __name__ == "__main__":
 
 #python run.py --mode "train" --model_name "gottlieb_kan" --epochs 25 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --spline_order 3 --ds_name "mnist"
 
-#python run.py --mode "train" --model_name "mlp" --epochs 15 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --note "full"
+#python run.py --mode "train" --model_name "mlp" --epochs 25 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --note "full"
 
-# python run.py --mode "train" --model_name "prkan" --epochs 25 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "fashion_mnist" --note "full" --grid_size 5 --spline_order 3 --num_grids 8 --func "rbf" --kan_norm "batch" --base_activation "selu"
+#python run.py --mode "train" --model_name "mlp" --epochs 15 --batch_size 64 --n_input 3072 --n_hidden 64 --n_output 10 --ds_name "cifar10" --note "full"
+
+#python run.py --mode "train" --model_name "fc_kan" --epochs 1 --batch_size 64 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --func_list "bs,dog" --combined_type "quadratic" --note "full"
+
+#python run.py --mode "train" --model_name "fc_kan" --epochs 15 --batch_size 64 --n_input 3072 --n_hidden 64 --n_output 10 --ds_name "cifar10" --func_list "bs,dog" --combined_type "quadratic" --note "full"
+
+#python run.py --mode "train" --model_name "cnn" --epochs 15 --batch_size 64 --ds_name "mnist" --note "full"
 
 #python run.py --mode "predict_set" --model_name "bsrbf_kan" --model_path='papers//BSRBF-KAN//bsrbf_paper//mnist//bsrbf_kan//bsrbf_kan__mnist__full_0.pth' --ds_name "mnist" --batch_size 64
 
+#python run.py --mode "grid_search" --model_name "fc_kan" --epochs 25 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --func_list "bs,dog" --combined_type "quadratic" --device cpu
+
+
+#python run.py --mode "grid_search" --model_name "fc_kan" --epochs 35 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --func_list "bs,dog" --combined_type "quadratic" --device cpu
