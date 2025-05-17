@@ -1,8 +1,8 @@
 
 # Update
 
-## 2 May, 2025
-+ In the process of updating the code for submission to **Expert Systems with Applications**.
+## 17 May, 2025
++ The code version for the review process in **Expert Systems with Applications**.
 
 ## 24 Feb, 2025
 + Add "quadratic3", x_1^2 + x_2^2 + ... + x_n^2
