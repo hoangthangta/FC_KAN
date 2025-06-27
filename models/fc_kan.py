@@ -193,7 +193,8 @@ class FC_KANLayer(nn.Module):
         output = torch.zeros(X.shape[0], X.shape[1], self.output_dim).to(device)
         for i, f in zip(range(X.shape[0]), self.func_list):
             
-            x = X[i, :, :].squeeze(0)
+            #x = X[i, :, :].squeeze(0), the data shape is wrong with batch_size = 1
+            x = X[i, :, :]
             if (f == 'rbf'):
                 x = self.rbf(x).view(x.size(0), -1)
                 x = F.linear(x, self.spline_weight)
