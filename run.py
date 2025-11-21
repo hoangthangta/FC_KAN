@@ -129,6 +129,14 @@ def run(args):
         valset = torchvision.datasets.CIFAR10(
             root="./data", train=False, download=True, transform=transform_cifar
         )
+    elif(args.ds_name == 'cifar100'):
+        trainset = torchvision.datasets.CIFAR100(
+            root='./data', train=True, download=True,  transform=transform_cifar
+        )
+
+        valset = torchvision.datasets.CIFAR100(
+            root="./data", train=False, download=True, transform=transform_cifar
+        )
 
     if (args.n_examples > 0):
         if (args.n_examples/args.batch_size > 1):
@@ -529,3 +537,9 @@ if __name__ == "__main__":
 
 
 #python run.py --mode "grid_search" --model_name "fc_kan" --epochs 35 --n_input 784 --n_hidden 64 --n_output 10 --ds_name "mnist" --func_list "bs,dog" --combined_type "quadratic" --device cpu
+
+#python run.py --mode "train" --model_name "fc_kan" --epochs 15 --batch_size 64 --n_input 3072 --n_hidden 64 --n_output 10 --ds_name "cifar100" --func_list "bs,dog" --combined_type "quadratic" --note "full"
+
+#python run.py --mode "train" --model_name "cnn" --epochs 15 --batch_size 64 --ds_name "cifar100" --note "full"
+
+#python run.py --mode "train" --model_name "mlp" --epochs 15 --batch_size 64 --n_input 3072 --n_hidden 64 --n_output 10 --ds_name "cifar100" --note "full"
