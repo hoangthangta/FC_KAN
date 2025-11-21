@@ -194,7 +194,7 @@ def run(args):
     elif(args.model_name == 'skan'):
         model = SKAN([args.n_input, args.n_hidden, args.n_output], basis_function = args.basis_function) # lshifted_softplus, larctan 
     elif(args.model_name == 'cnn'):
-        if (args.ds_name == 'cifar10'):
+        if (args.ds_name in ['cifar10', 'cifar100']):
             model = SmallCNN(in_channels = 3)
         else:
             model = SmallCNN(in_channels = 1) # MNIST and Fashion-MNIST
