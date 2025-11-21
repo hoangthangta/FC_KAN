@@ -193,6 +193,8 @@ class FC_KANLayer(nn.Module):
         output = torch.zeros(X.shape[0], X.shape[1], self.output_dim).to(device)
         for i, f in zip(range(X.shape[0]), self.func_list):
             
+            
+            #x = X[i, :, :].squeeze(0) # the data shape is wrong with batch_size = 1
             x = X[i, :, :]
             
             #print('x.shape: ', x.shape, X.shape)
@@ -256,7 +258,7 @@ class FC_KAN(torch.nn.Module):
         spline_order=3,  
         combined_type = 'quadratic',
         #output_type = 'all',
-        base_activation=torch.nn.ReLU, # ReLU, SiLU
+        base_activation=torch.nn.SiLU, 
         drop_out = 0,
     ):
         super(FC_KAN, self).__init__()
