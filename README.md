@@ -1,7 +1,7 @@
 
 # Update
 
-## 3 August, 2025
+## 21 November, 2025
 + The code version for the review process in **Information Sciences**.
 
 ## 24 Feb, 2025
