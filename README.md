@@ -2,7 +2,7 @@
 # Update
 
 ## 8 Jan, 2025
-+ Accepted to publish in Information Sciences
++ Accepted to publish in Information Sciences (https://www.sciencedirect.com/journal/information-sciences)
 
 ## 21 November, 2025
 + The code version for the review process in **Information Sciences**.
