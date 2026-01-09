@@ -1,7 +1,7 @@
 
 # Update
 
-## 8 Jan, 2025
+## 8 Jan, 2026
 + Accepted to publish in Information Sciences (https://www.sciencedirect.com/journal/information-sciences)
 
 ## 21 November, 2025
