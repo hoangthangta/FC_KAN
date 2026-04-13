@@ -1,8 +1,10 @@
 
 # Update
 
-## 13 April, 2026: Error
+## 13 April, 2026
 + Note that the function we used is the Derivative of Gaussian (DoG), not the <del>Difference of Gaussian</del>.
++ You can use methods to reduce the number of parameters in KANs, such as PRKAN: Parameter-Reduced Kolmogorov–Arnold Networks (https://arxiv.org/abs/2501.07032
+).
 
 ## 8 Jan, 2026
 + Accepted to publish in Information Sciences (https://www.sciencedirect.com/journal/information-sciences)
