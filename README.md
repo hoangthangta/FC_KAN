@@ -2,7 +2,7 @@
 # Update
 
 ## 13 April, 2026: Error
-+ Note that the function we used is the derivative of a Gaussian (DoG), not the <del>difference of Gaussians</del>.
++ Note that the function we used is the Derivative of Gaussian (DoG), not the <del>Difference of Gaussian</del>.
 
 ## 8 Jan, 2026
 + Accepted to publish in Information Sciences (https://www.sciencedirect.com/journal/information-sciences)
