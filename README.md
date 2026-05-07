@@ -170,13 +170,13 @@ See **run.sh** or **run_fc.sh** (```bash run.sh``` or ```bash run_fc.sh``` in BA
 # Paper
 Cite our work if this paper is helpful for you.
 ```
-@misc{ta2024fckan,
-    title={FC-KAN: Function Combinations in Kolmogorov-Arnold Networks},
-    author={Hoang-Thang Ta and Duy-Quy Thai and Abu Bakar Siddiqur Rahman and Grigori Sidorov and Alexander Gelbukh},
-    year={2024},
-    eprint={2409.01763},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG}
+@article{ta2026fc,
+  title={FC-KAN: Function Combinations in Kolmogorov-Arnold Networks},
+  author={Ta, Hoang-Thang and Thai, Duy-Quy and Rahman, Abu Bakar Siddiqur and Sidorov, Grigori and Gelbukh, Alexander},
+  journal={Information Sciences},
+  pages={123103},
+  year={2026},
+  publisher={Elsevier}
 }
 ```
 
