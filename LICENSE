@@ -1,21 +1,198 @@
-MIT License
+ACADEMIC AND NON-COMMERCIAL LICENSE
 
-Copyright (c) 2024 Hoang Thang Ta
+Copyright (c) 2026 Hoang-Thang Ta
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Permission
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Permission is granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"),
+to use, copy, modify, and distribute the Software solely for:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+(a) educational purposes;
+(b) academic research; and
+(c) other non-commercial research purposes.
+
+2. Attribution and Conditions
+
+Any use, reproduction, modification, or distribution of the Software
+must comply with all of the following conditions:
+
+(a) The original copyright notice must be retained.
+
+(b) A copy of this license must be included with any permitted
+    redistribution of the Software or substantial portions thereof.
+
+(c) The original copyright holder and author, Hoang-Thang Ta, must
+    be clearly and prominently acknowledged.
+
+(d) All existing attribution and copyright notices contained in the
+    Software must be preserved.
+
+(e) Any academic publication, thesis, dissertation, report, presentation,
+    or other scholarly work that uses the Software or substantial portions
+    of the Software must cite the associated research publication.
+
+(f) Any modification, adaptation, or derivative work based on the
+    Software must clearly state that modifications have been made and
+    must identify the original Software and its author.
+
+(g) Any permitted redistribution of the Software must include the
+    following attribution:
+
+    "Based on software developed by Hoang-Thang Ta."
+
+(h) The attribution and citation requirements in this section are
+    mandatory and may not be removed or omitted from any permitted
+    use or redistribution of the Software.
+
+
+3. Academic Citation Requirement
+
+If the Software is used in academic or scientific research, the
+following publication must be cited:
+
+Hoang-Thang Ta, "SechKAN: Kolmogorov-Arnold Networks with Hyperbolic
+Secant Functions," Neurocomputing, 2026.
+
+The citation requirement applies to, but is not limited to:
+
+(a) journal articles;
+(b) conference papers;
+(c) theses and dissertations;
+(d) technical reports;
+(e) research presentations; and
+(f) other scholarly publications or academic materials that use
+    the Software or substantial portions thereof.
+
+
+4. Commercial Use
+
+Commercial use of the Software is NOT permitted without prior written
+permission from the copyright holder.
+
+Commercial use includes, but is not limited to:
+
+(a) incorporation into commercial software or products;
+(b) use in commercial services;
+(c) use in commercial or e-commerce applications;
+(d) use in commercial consulting or paid services;
+(e) use by a commercial organization for commercial purposes;
+(f) use as part of a paid product, service, platform, or application;
+(g) redistribution of the Software as part of a commercial offering; and
+(h) selling, licensing, sublicensing, or otherwise monetizing the
+    Software or substantial portions thereof.
+
+Any commercial use requires a separate written license or explicit
+written permission from the copyright holder.
+
+
+5. Restrictions
+
+The permissions granted under this license do not include the right to:
+
+(a) use the Software for commercial purposes without prior written
+    permission;
+
+(b) remove or alter copyright, attribution, or license notices;
+
+(c) misrepresent the origin or authorship of the Software;
+
+(d) claim authorship of the original Software;
+
+(e) redistribute the Software under terms that remove or conflict
+    with the attribution and non-commercial requirements of this
+    license; or
+
+(f) use the name "Hoang-Thang Ta" to endorse or promote products or
+    services derived from the Software without prior written permission.
+
+
+6. Modifications and Derivative Works
+
+Permission is granted to modify the Software solely for educational,
+academic research, and other non-commercial research purposes.
+
+Any modified or derivative version of the Software must:
+
+(a) retain the original copyright notice;
+
+(b) retain this license;
+
+(c) clearly identify that modifications have been made;
+
+(d) acknowledge Hoang-Thang Ta as the original author; and
+
+(e) preserve the mandatory attribution and citation requirements
+    specified in this license.
+
+Modified versions must not be presented as the original Software or
+as an official version developed or endorsed by Hoang-Thang Ta without
+prior written permission.
+
+
+7. Redistribution
+
+Redistribution of the Software is permitted only for educational,
+academic, and other non-commercial research purposes and only when
+all requirements of this license are satisfied.
+
+Any permitted redistribution must include:
+
+(a) the complete copyright notice;
+(b) a copy of this license;
+(c) the mandatory attribution;
+(d) all existing attribution notices; and
+(e) information identifying any modifications made to the Software.
+
+
+8. No Endorsement
+
+This license does not grant permission to use the name, image,
+affiliation, trademarks, or other identifying information of
+Hoang-Thang Ta for advertising, endorsement, or promotional purposes
+without prior written permission.
+
+
+9. Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE
 SOFTWARE.
+
+
+10. Termination
+
+Any rights granted under this license terminate automatically if the
+terms and conditions of this license are violated.
+
+Upon termination, the recipient must cease all use, reproduction,
+distribution, and modification of the Software, except to the extent
+otherwise permitted by applicable law.
+
+Rights may be reinstated only upon written permission from the
+copyright holder.
+
+
+11. Commercial Licensing and Permissions
+
+For commercial licensing, commercial use, or permissions beyond the
+scope of this license, please contact the copyright holder.
+
+Copyright Holder:
+
+Hoang-Thang Ta
+
+Commercial licensing or permission requests should be directed to
+the copyright holder.
+
+
+12. Acceptance
+
+By using, copying, modifying, or distributing the Software, you
+acknowledge that you have read, understood, and agreed to the terms
+and conditions of this license.
